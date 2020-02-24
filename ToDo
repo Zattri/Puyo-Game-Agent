@@ -1,0 +1,5 @@
+Line changes to Interactive.py
+
+208 - Cut out unused env buttons for AI
+218 - Change button combinations to something better
+    Need to implement player 2 controls as well
