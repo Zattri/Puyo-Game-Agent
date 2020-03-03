@@ -1,0 +1,37 @@
+Notes from Emmett - 
+Mess Debugger
+Higan Emulator
+GensKmod - Debugger for windows
+
+Notes on CNN and Retro
+Use the env.render() to grab the environment img in RGB format and put into numpy array and then plot with MatplotLib
+try var.shape() - I think this gets the size of the array output by the env
+Image shape is the input shape for the CNN, then the output shape is the input shape for the next layer
+
+
+ToDo This Week:
+Add all altered files to Github folder
+
+Get image data from frames
+- Preprocess to Grey-scale, see if we need RGB or not
+- Crop and view data using matplotlib to check captured regions
+
+Format the game folder structure in retro/data/stable:
+- rom file
+- scenario.json
+- metadata.json
+- startingPoint.state
+- Get different states for Player vs Stage 1 CPU, Player vs Player, Player vs Stage 3 CPU
+
+Create CNN network structure in OpenAI Gym
+- Use Tensorflow library to create structure
+- Check that the inputs and outputs for each layer work, and the activation functions are set correctly
+- Set filter sizes correctly
+
+Finish draft of google surveys for SUS and General Feedback
+- Check how to evaluate custom SUS surveys
+- Think up good general feedback based around emotions during play, difficulty and the overall experience
+
+
+Image size for Airstriker - 224x320x3
+
