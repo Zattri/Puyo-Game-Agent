@@ -125,14 +125,14 @@ class Interactive(abc.ABC):
                 np.set_printoptions(precision=2)
                 if self._sync:
                     done_int = int(done)  # shorter than printing True/False
-                    mess = 'steps={self._steps} episode_steps={self._episode_steps} rew={rew} episode_returns={self._episode_returns} done={done_int}'.format(
+                    mess = 'steps={self._steps} episode_steps={self._episode_steps} rew={rew} episode_returns={self._episode_returns} done={done_int} info={_info}'.format(
                         **locals()
                     )
                     print(mess)
                 elif self._steps % self._tps == 0 or done:
                     episode_returns_delta = self._episode_returns - self._prev_episode_returns
                     self._prev_episode_returns = self._episode_returns
-                    mess = 'steps={self._steps} episode_steps={self._episode_steps} episode_returns_delta={episode_returns_delta} episode_returns={self._episode_returns}'.format(
+                    mess = 'steps={self._steps} episode_steps={self._episode_steps} episode_returns_delta={episode_returns_delta} episode_returns={self._episode_returns} info={_info}'.format(
                         **locals()
                     )
                     print(mess)
@@ -242,7 +242,7 @@ class RetroInteractive(Interactive):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--game', default='Airstriker-Genesis')
+    parser.add_argument('--game', default='Puyo-Genesis')
     parser.add_argument('--state', default=retro.State.DEFAULT)
     parser.add_argument('--scenario', default=None)
     args = parser.parse_args()

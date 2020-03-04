@@ -7,6 +7,10 @@
     "p2_score": {
       "address": 16765130,
       "type": ">u4"
+    },
+    "play_time": {
+      "address": 16752740,
+      "type": ">u2"
     }
   }
 }

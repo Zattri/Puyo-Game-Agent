@@ -1,0 +1,2 @@
+Copy Puyo-Genesis folder to
+/home/zattri/.local/lib/python3.7/site-packages/retro/data/stable/

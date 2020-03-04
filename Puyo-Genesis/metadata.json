@@ -1,0 +1,8 @@
+{
+  "default_state": "1P_Vs_CPU_S1",
+  "whitelist": {
+    "data.json": [
+      "Message about variables?"
+    ]
+  }
+}
