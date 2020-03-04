@@ -20,9 +20,6 @@ obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Obser
 env = retro.make(args.game, args.state or retro.State.DEFAULT, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
 verbosity = args.verbose - args.quiet
 
-captured = False
-steps = 0
-
 try:
     while True:
         ob = env.reset()
