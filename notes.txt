@@ -8,9 +8,6 @@ Use the env.render() to grab the environment img in RGB format and put into nump
 try var.shape() - I think this gets the size of the array output by the env
 Image shape is the input shape for the CNN, then the output shape is the input shape for the next layer
 
-Debugging:
-At the end of a match grab the play time variable
-
 ToDo This Week:
 Add all altered files to Github folder
 
