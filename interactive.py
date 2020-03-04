@@ -15,7 +15,7 @@ import retro
 import pyglet
 from pyglet import gl
 from pyglet.window import key as keycodes
-
+import matplotlib.pyplot as plt
 
 class Interactive(abc.ABC):
     """
@@ -123,6 +123,30 @@ class Interactive(abc.ABC):
                 self._steps += 1
                 self._episode_steps += 1
                 np.set_printoptions(precision=2)
+
+                # Printing out the screen after a timestep
+                if (self._steps == 120):
+                    pixels = self._image
+                    print(pixels.shape)
+                    #plt.imshow(pixels)
+
+                    img_grey = np.copy(pixels)
+                    img_red = pixels[:,:,0]
+                    img_green = pixels[:,:,1]
+                    img_blue = pixels[:,:,2]
+
+                    img_grey[:] = pixels.mean(axis=-1, keepdims=1)
+                    #plt.imshow(img_grey)
+
+                    plt.subplot(1,3,1)
+                    plt.hist(img_red.reshape(224*320), bins=9)
+                    plt.subplot(1, 3, 2)
+                    plt.hist(img_green.reshape(224 * 320), bins=9)
+                    plt.subplot(1, 3, 3)
+                    plt.hist(img_blue.reshape(224 * 320), bins=9)
+
+                    plt.show()
+
                 if self._sync:
                     done_int = int(done)  # shorter than printing True/False
                     mess = 'steps={self._steps} episode_steps={self._episode_steps} rew={rew} episode_returns={self._episode_returns} done={done_int} info={_info}'.format(
