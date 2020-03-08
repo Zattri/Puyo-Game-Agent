@@ -127,23 +127,28 @@ class Interactive(abc.ABC):
                 # Printing out the screen after a timestep
                 if (self._steps == 120):
                     pixels = self._image
-                    print(pixels.shape)
-                    #plt.imshow(pixels)
+                    cropppedImage = self._image[4:208, 208:304]
+                    cropppedImageNoTop = self._image[16:208, 208:304]
+                    #plt.imshow(cropppedImageNoTop)
 
-                    img_grey = np.copy(pixels)
-                    img_red = pixels[:,:,0]
-                    img_green = pixels[:,:,1]
-                    img_blue = pixels[:,:,2]
+                    img_grey = np.copy(cropppedImage)
+                    # img_red = pixels[:,:,0]
+                    # img_green = pixels[:,:,1]
+                    # img_blue = pixels[:,:,2]
 
-                    img_grey[:] = pixels.mean(axis=-1, keepdims=1)
-                    #plt.imshow(img_grey)
+                    img_grey[:] = cropppedImage.mean(axis=-1, keepdims=1)
+                    print("Full colour", cropppedImage.shape)
+                    print("No top", cropppedImageNoTop.shape)
+                    print("Grey shape", img_grey.shape)
 
-                    plt.subplot(1,3,1)
-                    plt.hist(img_red.reshape(224*320), bins=9)
-                    plt.subplot(1, 3, 2)
-                    plt.hist(img_green.reshape(224 * 320), bins=9)
-                    plt.subplot(1, 3, 3)
-                    plt.hist(img_blue.reshape(224 * 320), bins=9)
+                    plt.imshow(img_grey)
+
+                    #plt.subplot(1,3,1)
+                    #plt.hist(img_red.reshape(224*320), bins=9)
+                    #plt.subplot(1, 3, 2)
+                    #plt.hist(img_green.reshape(224 * 320), bins=9)
+                    #plt.subplot(1, 3, 3)
+                    #plt.hist(img_blue.reshape(224 * 320), bins=9)
 
                     plt.show()
 
@@ -240,21 +245,21 @@ class RetroInteractive(Interactive):
             None: False,
 
             'BUTTON': 'Z' in keys,
-            'A': 'Z' in keys,
-            'B': 'X' in keys,
+            'A': 'LEFT' in keys,
+            'B': 'RIGHT' in keys,
 
             'C': 'C' in keys,
-            'X': 'A' in keys,
-            'Y': 'S' in keys,
-            'Z': 'D' in keys,
+            'X': 'V' in keys,
+            'Y': 'B' in keys,
+            'Z': 'N' in keys,
 
-            'L': 'Q' in keys,
-            'R': 'W' in keys,
+            'L': 'UP' in keys,
+            'R': 'DOWN' in keys,
 
-            'UP': 'UP' in keys,
-            'DOWN': 'DOWN' in keys,
-            'LEFT': 'LEFT' in keys,
-            'RIGHT': 'RIGHT' in keys,
+            'UP': 'W' in keys,
+            'DOWN': 'S' in keys,
+            'LEFT': 'A' in keys,
+            'RIGHT': 'D' in keys,
 
             'MODE': 'TAB' in keys,
             'SELECT': 'TAB' in keys,
