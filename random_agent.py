@@ -1,9 +1,6 @@
 import argparse
 import retro
 import time
-import numpy
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--game', default='Airstriker-Genesis', help='the name or path for the game to run')
@@ -36,7 +33,7 @@ try:
                         infostr = ', info: ' + ', '.join(['%s=%i' % (k, v) for k, v in info.items()])
                     print(('t=%i' % t) + infostr)
                 env.render()
-                time.sleep(0.1)
+                time.sleep(0.1) # Make it easier to see the changes
             if args.players == 1:
                 rew = [rew]
             for i, r in enumerate(rew):
