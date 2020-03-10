@@ -124,6 +124,7 @@ class Interactive(abc.ABC):
                 self._episode_steps += 1
                 np.set_printoptions(precision=2)
 
+# ==================================================================
                 # Printing out the screen after a timestep
                 if (self._steps == 120):
                     pixels = self._image
@@ -143,6 +144,7 @@ class Interactive(abc.ABC):
 
                     plt.imshow(img_grey)
 
+                    # - Colour subplots
                     #plt.subplot(1,3,1)
                     #plt.hist(img_red.reshape(224*320), bins=9)
                     #plt.subplot(1, 3, 2)
@@ -151,6 +153,8 @@ class Interactive(abc.ABC):
                     #plt.hist(img_blue.reshape(224 * 320), bins=9)
 
                     plt.show()
+
+# ==================================================================
 
                 if self._sync:
                     done_int = int(done)  # shorter than printing True/False
