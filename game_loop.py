@@ -3,6 +3,7 @@ import retro
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import json
 # Need to import models later
 
 
@@ -19,9 +20,8 @@ obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Obser
 env = retro.make(args.game, args.state, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
 
 goal_steps = 10000
-training_episodes = 3
-current_episode = 1
-observedImages = []
+training_episodes = 1
+observations = []
 experiences = []
 
 for episode in range(training_episodes):
@@ -30,22 +30,20 @@ for episode in range(training_episodes):
     for step in range(goal_steps):
         env.render()
         # Button Mappings - ['B', 'A', 'MODE', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'C', 'Y', 'X', 'Z']
+        ## Actions currently being made randomly from a selection of available actions
         action = env.action_space.sample()
         observation_, reward, done, info = env.step(action)
 
         # Store the observations here - Need to store things in memory including reward and action
-        # Make a list of frames every 6 steps, take an action on it based on what the model thinks it should do and record the reward
+        # Make a list of frames every 4 steps, take an action on it based on what the model thinks it should do and record the reward
 
-        # Doing this every available movement
         # IMPORTANT - Game moves a puyo every 4 frames
-        if step % 15 == 0:
-            observedImages.append(observation[4: 208, 208: 304])
-            infoString = f"Episode {episode} - step {step}: {info} | {action}"
+        if step % 4 == 0:
+            # Need to convert observation frame from numpy to something that's saveable in JSON, check out 
+            observations.append((episode, step, info, action, reward, observation[4: 208, 208: 304]))
+            infoString = f"Ep {episode} step {step}: {info} | {action} - {reward}"
             print(infoString)
 
-        observation = observation_
-
-        # Doing this every second
         if step % 60 == 0:
             # Hybrid done condition
             prev_play_time = current_play_time
@@ -53,25 +51,33 @@ for episode in range(training_episodes):
 
         if step >= goal_steps or done or prev_play_time == current_play_time:
             break
-        # Can do some check that logs the info.gameTime and checks if it changed since last frame, if its the same, done
 
-finishedString = f"Captured Observations: {len(observedImages)} | Episodes: {training_episodes}"
+        observation = observation_
+
+finishedString = f"Captured Observations: {len(observations)} | Episodes: {training_episodes}"
 print(finishedString)
 
-# plt.imshow(observedImages[-8])
+# plt.imshow(observed_images[-8])
 # plt.show()
-# plt.imshow(observedImages[-7])
+# plt.imshow(observed_images[-7])
 # plt.show()
-# plt.imshow(observedImages[-6])
+# plt.imshow(observed_images[-6])
 # plt.show()
-# plt.imshow(observedImages[-5])
+# plt.imshow(observed_images[-5])
 # plt.show()
-# plt.imshow(observedImages[-4])
+# plt.imshow(observed_images[-4])
 # plt.show()
-# plt.imshow(observedImages[-3])
+# plt.imshow(observed_images[-3])
 # plt.show()
-# plt.imshow(observedImages[-2])
+# plt.imshow(observed_images[-2])
 # plt.show()
-sampleImage = observedImages[-1]
+sample_observation = observations[-1]
+print(sample_observation)
+
+# Try to write the data to a file
+with open("data01.json", "w") as fjson:
+    json.dump(observations, fjson)
+
+sampleImage = observations[-1][-1]
 plt.imshow(sampleImage)
 plt.show()
