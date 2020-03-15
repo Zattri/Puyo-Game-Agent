@@ -7,7 +7,7 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
 keep_rate = 0.8
-dqn_output_size = 5 # Might need to change this to the available state size for each action
+dqn_output_size = 5 #TODO: Might need to change this to the available state size for each action
 learning_rate = 1e-3
 
 def neuralNetworkModel(inputSize):
@@ -25,13 +25,13 @@ def neuralNetworkModel(inputSize):
     model = tflearn.DNN(network, tensorboard_dir="log")
     return model
 
-
+#TODO : Add storage for weights and biases
 weights = {}
 biases = {}
 
 def convolutionalNetworkModel(shape):
 
-    # Set the shape to the input data shape
+    #TODO: Set the shape to the input data shape
     convnet = input_data(shape=[None, 28, 28, 1], name="input")
 
     convnet = conv_2d(convnet, nb_filter=16, filter_size=8, strides=4, activation="relu")
