@@ -15,7 +15,11 @@ import retro
 import pyglet
 from pyglet import gl
 from pyglet.window import key as keycodes
+
 import matplotlib.pyplot as plt
+
+import game_loop
+import experience_replay as ExpRep
 
 class Interactive(abc.ABC):
     """
@@ -33,8 +37,8 @@ class Interactive(abc.ABC):
         # guess a screen size that doesn't distort the image too much but also is not tiny or huge
         display = pyglet.canvas.get_display() # Modified code
         screen = display.get_default_screen()
-        max_win_width = screen.width * 0.9
-        max_win_height = screen.height * 0.9
+        max_win_width = screen.width * 0.85
+        max_win_height = screen.height * 0.85
         win_width = image_width
         win_height = int(win_width / aspect_ratio)
 
@@ -79,6 +83,7 @@ class Interactive(abc.ABC):
         self._max_sim_frames_per_update = 4
 
     def _update(self, dt):
+        exp_rep = ExpRep.ExperienceReplay()
         # cap the number of frames rendered so we don't just spend forever trying to catch up on frames
         # if rendering is slow
         max_dt = self._max_sim_frames_per_update / self._tps
@@ -124,40 +129,17 @@ class Interactive(abc.ABC):
                 self._episode_steps += 1
                 np.set_printoptions(precision=2)
 
-# ==================================================================
-                # Printing out the screen after a timestep
-                if (self._steps == 120):
-                    pixels = self._image
-                    cropppedImage = self._image[4:208, 208:304]
-                    cropppedImageNoTop = self._image[16:208, 208:304]
-                    #plt.imshow(cropppedImageNoTop)
+                if self._steps % 4 == 0:
+                    obs_img = self._image[4: 206, 18: 110]
+                    exp_rep.appendObservation(self._episode_steps, self._steps, _info, act, rew, obs_img)
 
-                    img_grey = np.copy(cropppedImage)
-                    # img_red = pixels[:,:,0]
-                    # img_green = pixels[:,:,1]
-                    # img_blue = pixels[:,:,2]
-
-                    img_grey[:] = cropppedImage.mean(axis=-1, keepdims=1)
-                    print("Full colour", cropppedImage.shape)
-                    print("No top", cropppedImageNoTop.shape)
-                    print("Grey shape", img_grey.shape)
-
-                    plt.imshow(img_grey)
-
-                    # - Colour subplots
-                    #plt.subplot(1,3,1)
-                    #plt.hist(img_red.reshape(224*320), bins=9)
-                    #plt.subplot(1, 3, 2)
-                    #plt.hist(img_green.reshape(224 * 320), bins=9)
-                    #plt.subplot(1, 3, 3)
-                    #plt.hist(img_blue.reshape(224 * 320), bins=9)
-
-                    plt.show()
-
-# ==================================================================
+                if self._steps % 60 == 0:
+                    self.last_play_time = self.current_play_time
+                    self.current_play_time = _info.get("play_time")
 
                 if self._sync:
                     done_int = int(done)  # shorter than printing True/False
+                    print(f"{self.last_play_time} | {self.current_play_time}")
                     mess = 'steps={self._steps} episode_steps={self._episode_steps} rew={rew} episode_returns={self._episode_returns} done={done_int} info={_info}'.format(
                         **locals()
                     )
@@ -170,11 +152,13 @@ class Interactive(abc.ABC):
                     )
                     print(mess)
 
-                if done:
+                if done or (self.last_play_time != None and self.current_play_time == self.last_play_time):
                     self._env.reset()
                     self._episode_steps = 0
                     self._episode_returns = 0
                     self._prev_episode_returns = 0
+                    exp_rep.saveFile(input("Please input save file name: "))
+                    self._on_close()
 
     def _draw(self):
         gl.glBindTexture(gl.GL_TEXTURE_2D, self._texture_id)
@@ -222,6 +206,7 @@ class Interactive(abc.ABC):
         # and also involves inverting your code to run inside the pyglet framework
         # avoid both by using a while loop
         prev_frame_time = time.time()
+        self.current_play_time, self.last_play_time = None, None
         while True:
             self._win.switch_to()
             self._win.dispatch_events()
@@ -272,13 +257,16 @@ class RetroInteractive(Interactive):
         }
         return [inputs[b] for b in self._buttons]
 
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--game', default='Puyo-Genesis')
     parser.add_argument('--state', default=retro.State.DEFAULT)
     parser.add_argument('--scenario', default=None)
+    parser.add_argument('--difficulty', '-d', default=0, help='the difficulty stage of the game state')
     args = parser.parse_args()
+
+    if args.state == "random":
+        args.state = game_loop.getRandomState(args.difficulty)
 
     ia = RetroInteractive(game=args.game, state=args.state, scenario=args.scenario)
     ia.run()

@@ -1,5 +1,7 @@
 import json
 import numpy as np
+import skimage.measure
+import matplotlib.pyplot as plt
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -11,9 +13,9 @@ class ExperienceReplay():
     observations = []
 
     def appendObservation(self, episode, step, info, action, reward, obs_img):
-        #Todo: Need to buffer each observation into blocks of 4 to create an "Experience"
-        #compressed_img = self.compressObservation(obs_img)
-        obs_tuple = (episode, step, info, action, reward, obs_img.tolist())
+        compressed_img = self.compressObservation(obs_img)
+        #TODO: Do toList only when you want to save the data, not now - Maybe experiement with compressing later on, storing all screenshots in ram
+        obs_tuple = (episode, step, info, action, reward, compressed_img.tolist())
         self.observations.append(obs_tuple)
 
     def saveFile(self, file_name="data"):
@@ -28,8 +30,7 @@ class ExperienceReplay():
         return np.asarray(self.observations[x_index][y_index])
 
     def compressObservation(self, obs):
-        #Todo: Do some compression on the numpy array here to downsample image size
-        return obs
+        return skimage.measure.block_reduce(obs, (2, 2, 1), np.max)
 
     #def readObservationsFromFile(self, file_path):
         #json_load = json.loads(json_dump)
