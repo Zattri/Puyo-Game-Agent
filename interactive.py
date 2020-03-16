@@ -129,6 +129,15 @@ class Interactive(abc.ABC):
                 self._episode_steps += 1
                 np.set_printoptions(precision=2)
 
+                if self._steps == 6:
+                    print("3...")
+                    time.sleep(1)
+                    print("2..")
+                    time.sleep(1)
+                    print("1..")
+                    time.sleep(1)
+                    print("GO!")
+
                 if self._steps % 4 == 0:
                     obs_img = self._image[4: 206, 18: 110]
                     exp_rep.appendObservation(self._episode_steps, self._steps, _info, act, rew, obs_img)
@@ -139,15 +148,14 @@ class Interactive(abc.ABC):
 
                 if self._sync:
                     done_int = int(done)  # shorter than printing True/False
-                    print(f"{self.last_play_time} | {self.current_play_time}")
-                    mess = 'steps={self._steps} episode_steps={self._episode_steps} rew={rew} episode_returns={self._episode_returns} done={done_int} info={_info}'.format(
+                    mess = 'action={act}\nsteps={self._steps} returns_delta={episode_returns_delta} ep_returns={self._episode_returns} info={_info}'.format(
                         **locals()
                     )
                     print(mess)
                 elif self._steps % self._tps == 0 or done:
                     episode_returns_delta = self._episode_returns - self._prev_episode_returns
                     self._prev_episode_returns = self._episode_returns
-                    mess = 'steps={self._steps} episode_steps={self._episode_steps} episode_returns_delta={episode_returns_delta} episode_returns={self._episode_returns} info={_info}'.format(
+                    mess = 'action={act}\nsteps={self._steps} returns_delta={episode_returns_delta} ep_returns={self._episode_returns} info={_info}'.format(
                         **locals()
                     )
                     print(mess)
@@ -207,6 +215,8 @@ class Interactive(abc.ABC):
         # avoid both by using a while loop
         prev_frame_time = time.time()
         self.current_play_time, self.last_play_time = None, None
+        print("LOADING GAME...")
+        time.sleep(1)
         while True:
             self._win.switch_to()
             self._win.dispatch_events()
@@ -260,7 +270,7 @@ class RetroInteractive(Interactive):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--game', default='Puyo-Genesis')
-    parser.add_argument('--state', default=retro.State.DEFAULT)
+    parser.add_argument('--state', "-st", default=retro.State.DEFAULT)
     parser.add_argument('--scenario', default=None)
     parser.add_argument('--difficulty', '-d', default=0, help='the difficulty stage of the game state')
     args = parser.parse_args()
