@@ -4,6 +4,8 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import skimage.measure
+
 import experience_replay as ExpRep
 
 parser = argparse.ArgumentParser()
@@ -38,8 +40,11 @@ for episode in range(training_episodes):
         # Make a list of frames every 4 steps, take an action on it based on what the model thinks it should do and record the reward
 
         # IMPORTANT - Game moves a puyo every 4 frames
+        # Initial Crop - [4: 208, 208: 304]
+
         if step % 4 == 0:
-            obs_img = observation[4: 208, 208: 304]
+            obs_img = observation[4: 206, 210: 302]
+            # Obs Shape = (204, 96, 3)
             exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
             infoString = f"Ep {episode} step {step}: {info} | {action} - {reward}"
             print(infoString)
@@ -55,8 +60,11 @@ for episode in range(training_episodes):
         observation = observation_
 
 print(f"Captured Observations: {len(exp_rep.observations)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
-exp_rep.saveFile("data01")
+#exp_rep.saveFile("data01")
 
 sampleImage = exp_rep.getObservation(-1, -1)
+# test = skimage.measure.block_reduce(sampleImage, (2, 2, 1), np.max)
+# plt.imshow(test)
+# plt.show()
 plt.imshow(sampleImage)
 plt.show()

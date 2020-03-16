@@ -12,9 +12,8 @@ class ExperienceReplay():
 
     def appendObservation(self, episode, step, info, action, reward, obs_img):
         #Todo: Need to buffer each observation into blocks of 4 to create an "Experience"
-        compressed_img = self.compressObservation(obs_img)
-        img_list = compressed_img.tolist()
-        obs_tuple = (episode, step, info, action, reward, img_list)
+        #compressed_img = self.compressObservation(obs_img)
+        obs_tuple = (episode, step, info, action, reward, obs_img.tolist())
         self.observations.append(obs_tuple)
 
     def saveFile(self, file_name="data"):
@@ -26,7 +25,7 @@ class ExperienceReplay():
         print("Finished Saving!")
 
     def getObservation(self, x_index, y_index):
-        return self.observations[x_index][y_index]
+        return np.asarray(self.observations[x_index][y_index])
 
     def compressObservation(self, obs):
         #Todo: Do some compression on the numpy array here to downsample image size
