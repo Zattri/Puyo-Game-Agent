@@ -7,7 +7,7 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
 keep_rate = 0.8
-dqn_output_size = 5 #TODO: Might need to change this to the available state size for each action
+dqn_output_size = 6
 learning_rate = 1e-3
 
 def neuralNetworkModel(inputSize):
@@ -25,13 +25,28 @@ def neuralNetworkModel(inputSize):
     model = tflearn.DNN(network, tensorboard_dir="log")
     return model
 
+
+def trainDQN(training_data, model=False):
+    print(training_data[0][0])
+    x = np.array([i[0] for i in training_data]).reshape(-1, len(training_data[0][0]), 1)
+    y = [i[1] for i in training_data]
+
+    if not model:
+        model = neuralNetworkModel(inputSize=len(x[0]))
+
+    model.fit({"input": x}, {"targets": y}, n_epoch=3, snapshot_step=500, show_metric=True, run_id="PuyoOpenAI")
+
+    return model
+
+
 #TODO : Add storage for weights and biases
 weights = {}
 biases = {}
 
 def convolutionalNetworkModel(shape):
 
-    #TODO: Set the shape to the input data shape
+    #TODO: Change to 3D and set the shape to the shape of the compressed image
+    #TODO: Start using this as network input instead of the DQN taking input in
     convnet = input_data(shape=[None, 28, 28, 1], name="input")
 
     convnet = conv_2d(convnet, nb_filter=16, filter_size=8, strides=4, activation="relu")
@@ -47,5 +62,6 @@ def convolutionalNetworkModel(shape):
     convnet = regression(convnet, optimizer="adam", learning_rate="0.01", loss="categorical_crossentropy")
 
     model = tflearn.DNN(convnet)
+
     return model
 
