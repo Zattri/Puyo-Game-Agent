@@ -18,7 +18,7 @@ from pyglet.window import key as keycodes
 
 import matplotlib.pyplot as plt
 
-import game_loop
+import training_loop
 import experience_replay as ExpRep
 
 class Interactive(abc.ABC):
@@ -276,7 +276,7 @@ def main():
     args = parser.parse_args()
 
     if args.state == "random":
-        args.state = game_loop.getRandomState(args.difficulty)
+        args.state = training_loop.getRandomState(args.difficulty)
 
     ia = RetroInteractive(game=args.game, state=args.state, scenario=args.scenario)
     ia.run()

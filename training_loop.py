@@ -1,5 +1,4 @@
 import argparse
-
 import gym
 import retro
 import random
@@ -9,7 +8,7 @@ import matplotlib.pyplot as plt
 import json
 
 import experience_replay as ExpRep
-import model as Model
+import network_model as NetModel
 
 
 def getRandomState(difficulty=0):
@@ -23,23 +22,19 @@ def getRandomState(difficulty=0):
 
 def parseIntToActionArray(action):
     ar = np.zeros(12, "int8")
+
     if action == 0:
         ar[0] = 1
-        return ar
     elif action == 1:
         ar[1] = 1
-        return ar
     elif action == 2:
         ar[5] = 1
-        return ar
     elif action == 3:
         ar[6] = 1
-        return ar
     elif action == 4:
         ar[7] = 1
-        return ar
-    elif action == 5:
-        return ar
+
+    return ar
 
 
 def parseIntToNetworkOutput(action):
@@ -48,6 +43,12 @@ def parseIntToNetworkOutput(action):
 
     return ar
 
+def saveModel(model, model_name, model_path="models"):
+    model_path = f"{model_path}/{model_name}/{model_name}.model"
+    model.save(model_path)
+    print(f"Saved model to {model_path}")
+
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -55,24 +56,24 @@ def main():
     parser.add_argument('--state', '-st', default=retro.State.DEFAULT, help='the initial state file to load, minus the extension')
     parser.add_argument('--difficulty', '-d', default=0, help='the difficulty stage of the game state')
     parser.add_argument('--scenario', '-sc', default='scenario', help='the scenario file to load, minus the extension')
-    parser.add_argument('--record', '-r', action='store_true', help='record bk2 movies')
     parser.add_argument('--obs-type', '-o', default='image', choices=['image', 'ram'], help='the observation type, either `image` (default) or `ram`')
     parser.add_argument('--players', '-p', type=int, default=1, help='number of players/agents (default: 1)')
+    parser.add_argument('--model', '-m', help='model name for saving, without .model extension')
     args = parser.parse_args()
 
     if args.state == "random":
         args.state = getRandomState(args.difficulty)
 
+    model_name = args.model
+
     obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Observations.RAM
-    env = retro.make(args.game, args.state, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
+    env = retro.make(args.game, args.state, scenario=args.scenario, players=args.players, obs_type=obs_type)
 
     exp_rep = ExpRep.ExperienceReplay()
 
     total_steps = 0
     goal_steps = 10000
-    score_requirement = 1000
-    training_episodes = 1
-
+    training_episodes = 100
     training_data = []
 
     for episode in range(training_episodes):
@@ -118,52 +119,15 @@ def main():
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     #exp_rep.saveFile("data01")
 
-    model = Model.trainDQN(training_data)
-    #model.save('modelName.model')
-    env.close()
+    model = NetModel.trainDQN(training_data)
 
-    playGame(model, args)
+    if not args.model:
+        model_name = input("Save model? (type name to save as or 'n' to not save)\n>>> ")
 
-
-def playGame(model, args):
-    choices = []
-    goal_steps = 10000
-    total_steps = 0
-    current_play_time, last_play_time = None, None
-    num_of_games = 3
-
-    exp_rep = ExpRep.ExperienceReplay()
-
-    obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Observations.RAM
-    env = retro.make(args.game, args.state, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
-
-    for each_game in range(num_of_games):
-        observation = env.reset()
-
-        for step in range(goal_steps):
-            env.render()
-            time.sleep(0.005)
-
-            if step % 4 == 0:
-                obs_img = observation[4: 206, 18: 110]
-                compressed = exp_rep.compressObservation(obs_img).flatten()
-                action = model.predict(compressed.reshape(-1, len(compressed), 1))[0].astype(int)
-                choices.append(env.get_action_meaning(action))
-                print(choices[-1])
-            else:
-                action = np.zeros(12, "int8")
-
-            observation_, reward, done, info = env.step(action)
-
-            if step % 60 == 0:
-                last_play_time = current_play_time
-                current_play_time = info.get("play_time")
-
-            if step >= goal_steps or done or last_play_time == current_play_time:
-                total_steps += step
-                break
-
-            observation = observation_
+    if (model_name.lower() != "n"):
+        saveModel(model, model_name)
+    else:
+        print("Model not saved, exiting program...")
 
     env.close()
 

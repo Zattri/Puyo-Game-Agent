@@ -32,6 +32,7 @@ def trainDQN(training_data, model=False):
     y = [i[1] for i in training_data]
 
     if not model:
+        print(f"Shape = {len(x[0])}")
         model = neuralNetworkModel(inputSize=len(x[0]))
 
     model.fit({"input": x}, {"targets": y}, n_epoch=3, snapshot_step=500, show_metric=True, run_id="PuyoOpenAI")
