@@ -29,7 +29,7 @@ pip3 install <package>
 - tensorflow-gpu (or tensorflow for non-gpu)
 - numpy (just for good measure)
 - matplotlib (same as above)
-
+- scikit-image
 
 ## Integration Setup Steps:
 ```
@@ -38,3 +38,6 @@ cmake .
 make
 ./gym-retro-integration
 ```
+
+## Setup Local Game Env
+Move `Puyo-Genesis` folder in repo to `/home/<username>/.local/lib/python3.7/site-packages/retro/data/stable`

@@ -1,5 +1,5 @@
 {
-  "default_state": "1P_Vs_CPU_S1",
+  "default_state": "p1_s1_01",
   "whitelist": {
     "data.json": [
       "Message about variables?"
