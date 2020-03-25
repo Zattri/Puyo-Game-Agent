@@ -73,7 +73,7 @@ def main():
 
     total_steps = 0
     goal_steps = 10000
-    training_episodes = 100
+    training_episodes = 10
     training_data = []
 
     for episode in range(training_episodes):
@@ -94,7 +94,7 @@ def main():
                 # P1 Well - [4: 206, 18: 110] | P2 Well - [4: 206, 210: 302]
                 obs_img = observation[4: 206, 18: 110]
                 # Obs_img.shape = (202, 92, 3)
-                compressed = exp_rep.compressObservation(obs_img).flatten()
+                compressed = exp_rep.compressObservation(obs_img)
 
                 # TODO: Need to append observations in episodes not just loads of observations
                 #exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
@@ -119,7 +119,12 @@ def main():
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     #exp_rep.saveFile("data01")
 
-    model = NetModel.trainDQN(training_data)
+    # Make sure that the observations are divisible into batches of 4
+    if len(training_data) % 4 == 0:
+        model = NetModel.trainDQN(training_data)
+    else:
+        remainder = len(training_data) % 4
+        model = NetModel.trainDQN(training_data[:len(training_data) - remainder])
 
     if not args.model:
         model_name = input("Save model? (type name to save as or 'n' to not save)\n>>> ")

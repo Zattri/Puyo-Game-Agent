@@ -1,11 +1,11 @@
 {
   "reward": {
     "variables": {
-      "p2_score": {
+      "p1_score": {
         "reward": 1.0
       },
       "play_time": {
-        "reward": -10.0
+        "reward": -1.0
       }
     }
   }

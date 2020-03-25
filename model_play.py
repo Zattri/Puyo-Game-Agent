@@ -26,8 +26,7 @@ def main():
     if args.state == "random":
         args.state = TrainLoop.getRandomState(args.difficulty)
 
-    model_shape = 13938
-    model = NetModel.neuralNetworkModel(model_shape)
+    model = NetModel.neuralNetworkModel()
     model.load("models/" + args.model + "/" + args.model + '.model')
 
     exp_rep = ExpRep.ExperienceReplay()
@@ -41,6 +40,8 @@ def main():
     obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Observations.RAM
     env = retro.make(args.game, args.state, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
 
+    observations = []
+
     for game in range(num_of_games):
         observation = env.reset()
 
@@ -48,12 +49,20 @@ def main():
             env.render()
             time.sleep(0.005)
 
-            if step % 4 == 0:
-                obs_img = observation[4: 206, 18: 110]
-                compressed = exp_rep.compressObservation(obs_img).flatten()
-                action = model.predict(compressed.reshape(-1, len(compressed), 1))[0].astype(int)
+            obs_img = observation[4: 206, 18: 110]
+            compressed = exp_rep.compressObservation(obs_img)
+            if len(observations) < 4:
+                observations.append(compressed)
+
+            if step % 4 == 0 and step != 0:
+                observedFrames = np.asarray(observations)
+                shapedArray = np.expand_dims(observedFrames, axis=0).reshape(1, 4, 101, 46, 3)
+                # Previous command action = model.predict(compressed.reshape(-1, len(compressed), 1))[0].astype(int)
+                action = model.predict(shapedArray)[0].astype(int)
                 action_button = env.get_action_meaning(action)
                 chosen_actions.append(action_button)
+
+                observations.clear()
 
                 if args.verbose:
                     debug_string = f"Ep {game} step {step}: {info} | {action_button} - {reward}"
