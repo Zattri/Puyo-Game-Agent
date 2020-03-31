@@ -11,7 +11,7 @@ dqn_output_size = 6
 learning_rate = 1e-3
 
 def neuralNetworkModel():
-    network = input_data(shape=[None, 4, 101, 46, 3], name="input") # Training in batches of 4, where each batch it 101 x 46 x 3
+    network = input_data(shape=[None, 4, 101, 46, 3], name="input") # Training in batches of n, where each batch it 4 x 101 x 46 x 3
 
     network = conv_3d(network, nb_filter=16, filter_size=8, strides=4, activation="relu")
     network = max_pool_3d(network, 2)
@@ -36,14 +36,8 @@ def neuralNetworkModel():
 
 
 def trainDQN(training_data, model=False):
-    x = np.expand_dims([i[0] for i in training_data], axis=0)
-    obs_num = x.shape[1]
-    print(f"X Shape: {x.shape} | Total obs: {obs_num}")
-
-    batches = obs_num // 4
-    x = x.reshape(batches, 4, 101, 46, 3)
-
-    print(f"New x shape: {x.shape}")
+    x = np.asarray([i[0] for i in training_data])
+    print(f"X Shape: {x.shape} | Total obs: {x.shape[1]}")
 
     y = [i[1] for i in training_data]
 

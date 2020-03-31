@@ -56,8 +56,7 @@ def main():
 
             if step % 4 == 0 and step != 0:
                 observedFrames = np.asarray(observations)
-                shapedArray = np.expand_dims(observedFrames, axis=0).reshape(1, 4, 101, 46, 3)
-                # Previous command action = model.predict(compressed.reshape(-1, len(compressed), 1))[0].astype(int)
+                shapedArray = np.expand_dims(observedFrames, axis=0)
                 action = model.predict(shapedArray)[0].astype(int)
                 action_button = env.get_action_meaning(action)
                 chosen_actions.append(action_button)
