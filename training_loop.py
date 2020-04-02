@@ -165,9 +165,9 @@ def main():
             observation = observation_
 
         for data in game_memory:
-            for i in range(0, obs_mem_size - 1):
-                plt.imshow(data[0][i])
-                plt.show()
+            # for i in range(0, obs_mem_size - 1):
+            #     plt.imshow(data[0][i])
+            #     plt.show()
 
             taken_action = parseIntToNetworkOutput(data[1])
             training_data.append([data[0], taken_action])
@@ -175,11 +175,11 @@ def main():
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     #exp_rep.saveFile("data01")
 
-    # Make sure that the observations are divisible into batches of 4
     if len(training_data) % obs_mem_size == 0:
         model = NetModel.trainDQN(training_data)
     else:
-        print("REMAINDER ERROR - SHOULD NOT HAPPEN NOW") # Might want to delete this section now?
+        print("\n>>> REMAINDER ERROR - FAILED TO DIVIDE INTO EQUAL BATCHES") # Still getting remainder error, look into this
+        print("Training Data Length:", len(training_data), "\n")
         remainder = len(training_data) % obs_mem_size
         model = NetModel.trainDQN(training_data[:len(training_data) - remainder])
 
