@@ -23,15 +23,15 @@ def getRandomState(difficulty=0):
 def parseIntToActionArray(action):
     ar = np.zeros(12, "int8")
 
-    if action == 0:
+    if action == 0: #B
         ar[0] = 1
-    elif action == 1:
+    elif action == 1: #A
         ar[1] = 1
-    elif action == 2:
+    elif action == 2: #DOWN
         ar[5] = 1
-    elif action == 3:
+    elif action == 3: #LEFT
         ar[6] = 1
-    elif action == 4:
+    elif action == 4: #RIGHT
         ar[7] = 1
 
     return ar
@@ -42,6 +42,20 @@ def parseIntToNetworkOutput(action):
     ar[action] = 1
 
     return ar
+
+def actionNumToString(action):
+    if action == 0:
+        return "B"
+    elif action == 1:
+        return "A"
+    elif action == 2:
+        return "DOWN"
+    elif action == 3:
+        return "LEFT"
+    elif action == 4:
+        return "RIGHT"
+    else:
+        return " "
 
 def saveModel(model, model_name, model_path="models"):
     model_path = f"{model_path}/{model_name}/{model_name}.model"
@@ -59,73 +73,88 @@ def main():
     parser.add_argument('--obs-type', '-o', default='image', choices=['image', 'ram'], help='the observation type, either `image` (default) or `ram`')
     parser.add_argument('--players', '-p', type=int, default=1, help='number of players/agents (default: 1)')
     parser.add_argument('--model', '-m', help='model name for saving, without .model extension')
+    parser.add_argument('--verbose', '-v', type=int, default=0, help='print verbose logging of actions, rewards and game steps')
     args = parser.parse_args()
 
     if args.state == "random":
         args.state = getRandomState(args.difficulty)
 
-    model_name = args.model
 
+    # Retro Env Setup
     obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Observations.RAM
     env = retro.make(args.game, args.state, scenario=args.scenario, players=args.players, obs_type=obs_type)
 
-    exp_rep = ExpRep.ExperienceReplay()
 
+    # Class Objects
+    exp_rep = ExpRep.ExperienceReplay()
+    model_name = args.model
+
+
+    # AI Settings
+    frames_per_action = 8
+    reward_threshold = 10
+    obs_mem_size = 4
+    action_mem_size = 4
+    obs_record_rate = 8
+
+
+    # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 1000
+    training_episodes = 1
     training_data = []
 
+    # Training Loop
     for episode in range(training_episodes):
         observation = env.reset()
         current_play_time, last_play_time = None, None
         game_memory = []
         obs_memory = []
-        recorded_action = 0
-        reward_gain = 0
+        action_memory = []
 
-        print(f"Ep {episode} | Observations {len(training_data)}")
+        if args.verbose == 2:
+            print(f"Ep {episode} | Observations {len(training_data)}")
 
         for step in range(goal_steps):
-            #env.render()
+            env.render()
 
-            if len(obs_memory) == 2:
-                action_num = random.randint(0, 5)
+            if step % frames_per_action == 0:
+                chosen_action = random.randint(0, 5)
+
+                if len(action_memory) == action_mem_size:
+                    action_memory.pop(0)
+
+                action_memory.append(actionNumToString(chosen_action))
+
             else:
-                action_num = 5
+                # Do nothing
+                chosen_action = 5
 
-            action = parseIntToActionArray(action_num)
+            action = parseIntToActionArray(chosen_action)
 
             observation_, reward, done, info = env.step(action)
-            reward_gain += reward
 
-            if step % 4 == 0:
+            if step % obs_record_rate == 0:
                 # Button Mappings - ['B', 'A', 'MODE', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'C', 'Y', 'X', 'Z']
                 # P1 Well - [4: 206, 18: 110] | P2 Well - [4: 206, 210: 302]
                 obs_img = observation[4: 206, 18: 110]
                 compressed = exp_rep.compressObservation(obs_img)
 
-                if len(obs_memory) == 2:
-                    recorded_action = action_num
-
-                elif len(obs_memory) == 4:
-                    compressed_array = np.asarray(obs_memory)
-
-                    if reward_gain > 2:
-                        game_memory.append([compressed_array, recorded_action])
-
-                    obs_memory.clear()
-                    reward_gain = 0
+                if len(obs_memory) == obs_mem_size:
+                    obs_memory.pop(0)
 
                 obs_memory.append(compressed)
 
-                # TODO: Need to append observations in episodes not just loads of observations
-                # TODO: Tidy up variable names and collecting of recent observations and action + reward
+            if reward >= reward_threshold:
+                compressed_array = np.asarray(obs_memory)
+                game_memory.append([compressed_array, chosen_action])
                 #exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
 
             if step % 60 == 0:
-                #debug_string = f"Ep {episode} step {step}: {info} | {action} - {reward}"
-                #print(debug_string)
+                if args.verbose == 1:
+                    debug_string = f"Ep {episode} step {step}: {info} | {action} - {reward}"
+                    print(debug_string)
+
                 last_play_time = current_play_time
                 current_play_time = info.get("play_time")
 
@@ -136,17 +165,22 @@ def main():
             observation = observation_
 
         for data in game_memory:
+            # for i in range(0, obs_mem_size - 1):
+            #     plt.imshow(data[0][i])
+            #     plt.show()
+
             taken_action = parseIntToNetworkOutput(data[1])
             training_data.append([data[0], taken_action])
 
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     #exp_rep.saveFile("data01")
 
-    # Make sure that the observations are divisible into batches of 4
-    if len(training_data) % 4 == 0:
+    if len(training_data) % obs_mem_size == 0:
         model = NetModel.trainDQN(training_data)
     else:
-        remainder = len(training_data) % 4
+        print("\n>>> REMAINDER ERROR - FAILED TO DIVIDE INTO EQUAL BATCHES") # Still getting remainder error, look into this
+        print("Training Data Length:", len(training_data), "\n")
+        remainder = len(training_data) % obs_mem_size
         model = NetModel.trainDQN(training_data[:len(training_data) - remainder])
 
     if not args.model:
