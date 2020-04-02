@@ -72,37 +72,60 @@ def main():
     exp_rep = ExpRep.ExperienceReplay()
 
     total_steps = 0
-    goal_steps = 10000
-    training_episodes = 10
+    goal_steps = 20000
+    training_episodes = 1000
     training_data = []
 
     for episode in range(training_episodes):
         observation = env.reset()
         current_play_time, last_play_time = None, None
         game_memory = []
+        obs_memory = []
+        recorded_action = 0
+        reward_gain = 0
+
+        print(f"Ep {episode} | Observations {len(training_data)}")
 
         for step in range(goal_steps):
             #env.render()
 
-            action_num = random.randint(0, 5)
+            if len(obs_memory) == 2:
+                action_num = random.randint(0, 5)
+            else:
+                action_num = 5
+
             action = parseIntToActionArray(action_num)
 
             observation_, reward, done, info = env.step(action)
+            reward_gain += reward
 
             if step % 4 == 0:
                 # Button Mappings - ['B', 'A', 'MODE', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'C', 'Y', 'X', 'Z']
                 # P1 Well - [4: 206, 18: 110] | P2 Well - [4: 206, 210: 302]
                 obs_img = observation[4: 206, 18: 110]
-                # Obs_img.shape = (202, 92, 3)
                 compressed = exp_rep.compressObservation(obs_img)
 
+                if len(obs_memory) == 2:
+                    recorded_action = action_num
+
+                elif len(obs_memory) == 4:
+                    compressed_array = np.asarray(obs_memory)
+
+                    if reward_gain > 2:
+                        game_memory.append([compressed_array, recorded_action])
+
+                    obs_memory.clear()
+                    reward_gain = 0
+
+                obs_memory.append(compressed)
+
                 # TODO: Need to append observations in episodes not just loads of observations
+                # TODO: Tidy up variable names and collecting of recent observations and action + reward
                 #exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
-                game_memory.append([compressed, action_num])
 
             if step % 60 == 0:
-                debug_string = f"Ep {episode} step {step}: {info} | {action} - {reward}"
-                print(debug_string)
+                #debug_string = f"Ep {episode} step {step}: {info} | {action} - {reward}"
+                #print(debug_string)
                 last_play_time = current_play_time
                 current_play_time = info.get("play_time")
 
