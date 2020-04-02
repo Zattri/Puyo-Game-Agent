@@ -58,7 +58,7 @@ def main():
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
                 action = model.predict(shapedArray)[0].astype(int)
-                action_button = env.get_action_meaning(action)
+                action_button = TrainLoop.actionNumToString(action)
                 chosen_actions.append(action_button)
 
                 observations.clear()
