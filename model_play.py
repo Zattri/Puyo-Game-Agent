@@ -57,6 +57,8 @@ def main():
             if step % 4 == 0 and step != 0:
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
+                prediction = model.predict(shapedArray)
+                # print(prediction) - See what the prediction is
                 action = model.predict(shapedArray)[0].astype(int)
                 action_button = TrainLoop.actionNumToString(action)
                 chosen_actions.append(action_button)

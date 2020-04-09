@@ -43,6 +43,7 @@ def parseIntToNetworkOutput(action):
 
     return ar
 
+
 def actionNumToString(action):
     if action == 0:
         return "B"
@@ -57,11 +58,11 @@ def actionNumToString(action):
     else:
         return " "
 
+
 def saveModel(model, model_name, model_path="models"):
     model_path = f"{model_path}/{model_name}/{model_name}.model"
     model.save(model_path)
     print(f"Saved model to {model_path}")
-
 
 
 def main():
@@ -92,7 +93,7 @@ def main():
 
     # AI Settings
     frames_per_action = 8
-    reward_threshold = 10
+    reward_threshold = 20
     obs_mem_size = 4
     action_mem_size = 4
     obs_record_rate = 8
@@ -101,14 +102,16 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 1
+    training_episodes = 10
     training_data = []
+    game_memory = []
+
 
     # Training Loop
     for episode in range(training_episodes):
         observation = env.reset()
         current_play_time, last_play_time = None, None
-        game_memory = []
+        game_memory.clear()
         obs_memory = []
         action_memory = []
 
@@ -124,7 +127,7 @@ def main():
                 if len(action_memory) == action_mem_size:
                     action_memory.pop(0)
 
-                action_memory.append(actionNumToString(chosen_action))
+                action_memory.append(chosen_action)
 
             else:
                 # Do nothing
@@ -147,7 +150,9 @@ def main():
 
             if reward >= reward_threshold:
                 compressed_array = np.asarray(obs_memory)
-                game_memory.append([compressed_array, chosen_action])
+                game_memory.append([compressed_array[:], action_memory[:]])
+                action_memory.clear()
+                obs_memory.clear()
                 #exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
 
             if step % 60 == 0:
@@ -165,23 +170,24 @@ def main():
             observation = observation_
 
         for data in game_memory:
-            # for i in range(0, obs_mem_size - 1):
-            #     plt.imshow(data[0][i])
+            # for k in range(0, 3):
+            #     plt.imshow(game_memory[i][0][k])
             #     plt.show()
 
-            taken_action = parseIntToNetworkOutput(data[1])
-            training_data.append([data[0], taken_action])
+            arrayOfActions = []
+            for actionNumber in data[1]:
+                arrayOfActions.append(parseIntToNetworkOutput(actionNumber))
+            #taken_action = parseIntToNetworkOutput(data[1])
+            print(arrayOfActions)
+            training_data.append([data[0], arrayOfActions])
+
+    # for i in range(len(training_data)):
+    #     print(training_data[i][1])
 
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     #exp_rep.saveFile("data01")
 
-    if len(training_data) % obs_mem_size == 0:
-        model = NetModel.trainDQN(training_data)
-    else:
-        print("\n>>> REMAINDER ERROR - FAILED TO DIVIDE INTO EQUAL BATCHES") # Still getting remainder error, look into this
-        print("Training Data Length:", len(training_data), "\n")
-        remainder = len(training_data) % obs_mem_size
-        model = NetModel.trainDQN(training_data[:len(training_data) - remainder])
+    model = NetModel.trainDQN(training_data)
 
     if not args.model:
         model_name = input("Save model? (type name to save as or 'n' to not save)\n>>> ")

@@ -14,7 +14,7 @@ class ExperienceReplay():
 
     def appendObservation(self, episode, step, info, action, reward, obs_img):
         compressed_img = self.compressObservation(obs_img)
-        #TODO: Do toList only when you want to save the data, not now - Maybe experiement with compressing later on, storing all screenshots in ram
+        #TODO: Do toList only when you want to save the data, not now - Maybe experiment with compressing later on, storing all screenshots in ram
         obs_tuple = (episode, step, info, action, reward, compressed_img.tolist())
         self.observations.append(obs_tuple)
 
