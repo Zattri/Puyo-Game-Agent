@@ -37,17 +37,15 @@ def neuralNetworkModel():
     model = tflearn.DNN(network, tensorboard_dir="log")
     return model
 
-
 def trainDQN(training_data, model=False):
     x = np.asarray([i[0] for i in training_data])
-    y = [i[1] for i in training_data]
-
+    #y = [i[1] for i in training_data]
+    y = [i[1][0] for i in training_data] # Just used for old model that only predicts one output per prediction
     #y is now a list of lists of 4 move elements, e.g [  [ [0, 1, 0, 0, 0, 0] ... [move4] ], [ [] ... [] ] ... ]
 
     if not model:
         model = neuralNetworkModel()
-    # Need to talk with Emmett about this, it's a bit weird, just needs some model re-jigging
-    # to predicting a number between 1 and 6 x 4 times for each input set
+
     model.fit({"input": x}, {"targets": y}, n_epoch=5, snapshot_step=500, show_metric=True, run_id="PuyoOpenAI")
 
     return model

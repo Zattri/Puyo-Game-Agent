@@ -36,6 +36,20 @@ def parseIntToActionArray(action):
 
     return ar
 
+def parseNetworkOutputToString(array):
+    if array[0] == 1: #B
+        return "B"
+    elif array[1] == 1: #A
+        return "A"
+    elif array[2] == 1: #DOWN
+        return "DOWN"
+    elif array[3] == 1: #LEFT
+        return "LEFT"
+    elif array[4] == 1: #RIGHT
+        return "RIGHT"
+    elif array[5] == 1: #NONE
+        return "NONE"
+
 
 def parseIntToNetworkOutput(action):
     ar = np.zeros(6, "int8")
@@ -102,10 +116,12 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 10
+    training_episodes = 1000
     training_data = []
     game_memory = []
 
+    # Training Episodes | Goal Steps | Frames Per Action | Observation Record Rate | Reward Threshold | Observation Memory Size | Action Memory Size
+    model_settings_string = f"TA: {training_episodes} | GS: {goal_steps} | FPA: {frames_per_action} | ORR: {obs_record_rate} | RT: {reward_threshold} | OMS: {obs_mem_size} | AMS: {action_mem_size}"
 
     # Training Loop
     for episode in range(training_episodes):
@@ -119,7 +135,7 @@ def main():
             print(f"Ep {episode} | Observations {len(training_data)}")
 
         for step in range(goal_steps):
-            env.render()
+            #env.render()
 
             if step % frames_per_action == 0:
                 chosen_action = random.randint(0, 5)
@@ -156,16 +172,17 @@ def main():
                 #exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
 
             if step % 60 == 0:
-                if args.verbose == 1:
-                    debug_string = f"Ep {episode} step {step}: {info} | {action} - {reward}"
-                    print(debug_string)
-
                 last_play_time = current_play_time
                 current_play_time = info.get("play_time")
 
             if step >= goal_steps or done or last_play_time == current_play_time:
                 total_steps += step
                 break
+
+            if args.verbose == 1:
+                if step % 1000 == 0:
+                    debug_string = f"Ep {episode} step {step}: {info} | {action} - {reward}"
+                    print(debug_string)
 
             observation = observation_
 
@@ -178,13 +195,10 @@ def main():
             for actionNumber in data[1]:
                 arrayOfActions.append(parseIntToNetworkOutput(actionNumber))
             #taken_action = parseIntToNetworkOutput(data[1])
-            print(arrayOfActions)
             training_data.append([data[0], arrayOfActions])
 
-    # for i in range(len(training_data)):
-    #     print(training_data[i][1])
-
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
+    print(model_settings_string)
     #exp_rep.saveFile("data01")
 
     model = NetModel.trainDQN(training_data)

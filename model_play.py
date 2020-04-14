@@ -35,12 +35,12 @@ def main():
     goal_steps = 10000
     current_play_time, last_play_time = None, None
     num_of_games = args.rounds
-    # TODO: Come up with some way of measuring model performance over x amount of games, maybe record scores / rewards over time?
 
     obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Observations.RAM
     env = retro.make(args.game, args.state, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
 
     observations = []
+    scores = []
 
     for game in range(num_of_games):
         observation = env.reset()
@@ -60,7 +60,8 @@ def main():
                 prediction = model.predict(shapedArray)
                 # print(prediction) - See what the prediction is
                 action = model.predict(shapedArray)[0].astype(int)
-                action_button = TrainLoop.actionNumToString(action)
+                action_button = TrainLoop.parseNetworkOutputToString(action)
+                #print(action_button)
                 chosen_actions.append(action_button)
 
                 observations.clear()
@@ -68,8 +69,8 @@ def main():
                 if args.verbose:
                     debug_string = f"Ep {game} step {step}: {info} | {action_button} - {reward}"
                     print(debug_string)
-                else:
-                    print(action_button)
+                #else:
+                    #print(action_button)
             else:
                 action = np.zeros(12, "int8")
 
@@ -80,9 +81,13 @@ def main():
                 current_play_time = info.get("play_time")
 
             if step >= goal_steps or done or last_play_time == current_play_time:
+                scores.append(info.get("p1_score"))
+                print(f"EP{game}: Player Score: {info.get('p1_score')}")
                 break
 
             observation = observation_
+
+    print(scores)
 
     env.close()
 
