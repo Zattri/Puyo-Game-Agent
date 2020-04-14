@@ -121,7 +121,7 @@ def main():
     game_memory = []
 
     # Training Episodes | Goal Steps | Frames Per Action | Observation Record Rate | Reward Threshold | Observation Memory Size | Action Memory Size
-    model_settings_string = f"TA: {training_episodes} | GS: {goal_steps} | FPA: {frames_per_action} | ORR: {obs_record_rate} | RT: {reward_threshold} | OMS: {obs_mem_size} | AMS: {action_mem_size}"
+    model_settings_string = f"TE: {training_episodes} | GS: {goal_steps} | FPA: {frames_per_action} | ORR: {obs_record_rate} | RT: {reward_threshold} | OMS: {obs_mem_size} | AMS: {action_mem_size}"
 
     # Training Loop
     for episode in range(training_episodes):
