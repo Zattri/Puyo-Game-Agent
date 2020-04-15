@@ -116,7 +116,7 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 5
+    training_episodes = 1
     training_data = []
     game_memory = []
 
@@ -135,7 +135,8 @@ def main():
             print(f"Ep {episode} | Observations {len(training_data)}")
 
         for step in range(goal_steps):
-            #env.render()
+            if args.verbose == 3:
+                env.render()
 
             if step % frames_per_action == 0:
                 chosen_action = random.randint(0, 5)
@@ -209,6 +210,12 @@ def main():
         saveModel(model, model_name)
     else:
         print("Model not saved, exiting program...")
+
+    file_path = f"models/{model_name}/settings.txt"
+    text_file = open(file_path, "w")
+    text_writer = text_file.write(model_settings_string)
+    print(f"Wrote settings file to {file_path}")
+    text_file.close()
 
     env.close()
 
