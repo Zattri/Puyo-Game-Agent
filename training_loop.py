@@ -116,7 +116,7 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 1000
+    training_episodes = 5
     training_data = []
     game_memory = []
 
@@ -169,7 +169,7 @@ def main():
                 game_memory.append([compressed_array[:], action_memory[:]])
                 action_memory.clear()
                 obs_memory.clear()
-                #exp_rep.appendObservation(episode, step, info, action, reward, obs_img)
+                exp_rep.appendObservation(compressed_array[:], action_memory[:])
 
             if step % 60 == 0:
                 last_play_time = current_play_time
@@ -194,12 +194,11 @@ def main():
             arrayOfActions = []
             for actionNumber in data[1]:
                 arrayOfActions.append(parseIntToNetworkOutput(actionNumber))
-            #taken_action = parseIntToNetworkOutput(data[1])
             training_data.append([data[0], arrayOfActions])
 
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     print(model_settings_string)
-    #exp_rep.saveFile("data01")
+    exp_rep.saveFile("testing")
 
     model = NetModel.trainDQN(training_data)
 

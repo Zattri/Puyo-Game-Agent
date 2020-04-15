@@ -25,7 +25,8 @@ class Interactive(abc.ABC):
     """
     Base class for making gym environments interactive for human use
     """
-    def __init__(self, env, sync=True, tps=60, aspect_ratio=None):
+    def __init__(self, env, sync=True, tps=60, aspect_ratio=None, verbose="0"):
+        self.args_verbose = verbose
         obs = env.reset()
         self._image = self.get_image(obs, env)
         assert len(self._image.shape) == 3 and self._image.shape[2] == 3, 'must be an RGB image'
@@ -81,6 +82,11 @@ class Interactive(abc.ABC):
         self._current_time = 0
         self._sim_time = 0
         self._max_sim_frames_per_update = 4
+
+        self.obs_memory = []
+        self.action_memory = []
+        self.reward_threshold = 20
+        self.recording_memory_size = 4
 
     def _update(self, dt):
         exp_rep = ExpRep.ExperienceReplay()
@@ -138,9 +144,25 @@ class Interactive(abc.ABC):
                     time.sleep(1)
                     print("GO!")
 
+                if self._steps % 6 == 0:
+                    # Appending latest action to memory, stops key roll over so only appends every 0.1 secs
+                    if act != [False] * 12:
+                        if len(self.action_memory) >= self.recording_memory_size:
+                            self.action_memory.pop(0)
+                        self.action_memory.append(act)
+                        print(self.action_memory)
+
                 if self._steps % 4 == 0:
                     obs_img = self._image[4: 206, 18: 110]
-                    exp_rep.appendObservation(self._episode_steps, self._steps, _info, act, rew, obs_img)
+                    # Appending latest observations to memory
+                    if len(self.obs_memory) >= self.recording_memory_size:
+                        self.obs_memory.pop(0)
+                    self.obs_memory.append(exp_rep.compressObservation(obs_img))
+
+                if rew >= self.reward_threshold:
+                    compressed_array = list(map(exp_rep.compressObservation, self.obs_memory))
+                    exp_rep.appendObservation(compressed_array, self.action_memory)
+                    self.obs_memory.clear()
 
                 if self._steps % 60 == 0:
                     self.last_play_time = self.current_play_time
@@ -158,7 +180,8 @@ class Interactive(abc.ABC):
                     mess = 'action={act}\nsteps={self._steps} returns_delta={episode_returns_delta} ep_returns={self._episode_returns} info={_info}'.format(
                         **locals()
                     )
-                    print(mess)
+                    if self.args_verbose == 1:
+                        print(mess)
 
                 if done or (self.last_play_time != None and self.current_play_time == self.last_play_time):
                     self._env.reset()
@@ -231,10 +254,10 @@ class RetroInteractive(Interactive):
     """
     Interactive setup for retro games
     """
-    def __init__(self, game, state, scenario):
+    def __init__(self, game, state, scenario, verbose):
         env = retro.make(game=game, state=state, scenario=scenario)
         self._buttons = env.buttons
-        super().__init__(env=env, sync=False, tps=60, aspect_ratio=4/3)
+        super().__init__(env=env, sync=False, tps=60, aspect_ratio=4/3, verbose=verbose)
 
     def get_image(self, _obs, env):
         return env.render(mode='rgb_array')
@@ -273,12 +296,13 @@ def main():
     parser.add_argument('--state', "-st", default=retro.State.DEFAULT)
     parser.add_argument('--scenario', default=None)
     parser.add_argument('--difficulty', '-d', default=0, help='the difficulty stage of the game state')
+    parser.add_argument('--verbose', '-v', type=int, default=0, help='print verbose logging of actions, rewards and game steps')
     args = parser.parse_args()
 
     if args.state == "random":
         args.state = training_loop.getRandomState(args.difficulty)
 
-    ia = RetroInteractive(game=args.game, state=args.state, scenario=args.scenario)
+    ia = RetroInteractive(game=args.game, state=args.state, scenario=args.scenario, verbose=args.verbose)
     ia.run()
 
 

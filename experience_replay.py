@@ -12,21 +12,19 @@ class NumpyEncoder(json.JSONEncoder):
 class ExperienceReplay():
     observations = []
 
-    def appendObservation(self, episode, step, info, action, reward, obs_img):
-        compressed_img = self.compressObservation(obs_img)
-        #TODO: Do toList only when you want to save the data, not now - Maybe experiment with compressing later on, storing all screenshots in ram
-        obs_tuple = (episode, step, info, action, reward, compressed_img.tolist())
+    def appendObservation(self, image_array, action_array):
+        obs_tuple = (image_array, action_array)
         self.observations.append(obs_tuple)
 
-    def saveFile(self, file_name="data"):
-        file_path = file_name + ".json"
+    def saveFile(self, file_name="data", folder="experiences"):
+        file_path = folder + "/" + file_name + ".json"
         print(f"Saving observations to {file_path}...")
         with open(file_path, "w") as fjson:
             json.dump(self.observations, fjson, cls=NumpyEncoder)
             fjson.close()
         print("Finished Saving!")
 
-    def getObservation(self, x_index, y_index):
+    def getObservation(self, x_index, y_index): # Won't work anymore - rejig
         return np.asarray(self.observations[x_index][y_index])
 
     def compressObservation(self, obs):
