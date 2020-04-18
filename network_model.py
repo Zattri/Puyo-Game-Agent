@@ -9,7 +9,7 @@ from tflearn.layers.estimator import regression
 
 # Model constants
 keep_rate = 0.8
-network_output_size = 6 # 6 potential outputs - B, A, LEFT, DOWN, RIGHT, NONE
+network_output_size = 5 # 6 potential outputs - B, A, LEFT, DOWN, RIGHT, NONE
 learning_rate = 1e-3
 
 def neuralNetworkModel():

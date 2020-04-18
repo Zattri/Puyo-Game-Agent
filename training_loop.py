@@ -47,12 +47,12 @@ def parseNetworkOutputToString(array):
         return "LEFT"
     elif array[4] == 1: #RIGHT
         return "RIGHT"
-    elif array[5] == 1: #NONE
-        return "NONE"
+    #elif array[5] == 1: #NONE
+    #    return "NONE"
 
 
 def parseIntToNetworkOutput(action):
-    ar = np.zeros(6, "int8")
+    ar = np.zeros(5, "int8") # Changed from 6 to 5 to remove NONE
     ar[action] = 1
 
     return ar
@@ -116,7 +116,7 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 1
+    training_episodes = 100
     training_data = []
     game_memory = []
 
@@ -139,7 +139,7 @@ def main():
                 env.render()
 
             if step % frames_per_action == 0:
-                chosen_action = random.randint(0, 5)
+                chosen_action = random.randint(0, 4)
 
                 if len(action_memory) == action_mem_size:
                     action_memory.pop(0)
