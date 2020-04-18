@@ -2,6 +2,7 @@ import random
 import numpy as np
 import tflearn
 import tensorflow as tf
+import matplotlib.pyplot as plt
 from tflearn.layers.conv import conv_3d, max_pool_3d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
@@ -21,7 +22,7 @@ def neuralNetworkModel():
     network = conv_3d(network, 32, 4, 2, activation="relu")
     network = max_pool_3d(network, 2)
 
-    network = fully_connected(network, 512, activation="relu")
+    network = fully_connected(network, 512, activation="relu") # Check that this network input size is correct
     network = dropout(network, keep_rate)
 
     network = fully_connected(network, 2048, activation="relu")
@@ -36,12 +37,12 @@ def neuralNetworkModel():
     model = tflearn.DNN(network, tensorboard_dir="log")
     return model
 
-
 def trainDQN(training_data, model=False):
     x = np.asarray([i[0] for i in training_data])
-    print(f"X Shape: {x.shape} | Total obs: {x.shape[1]}")
-
-    y = [i[1] for i in training_data]
+    #y = [i[1] for i in training_data]
+    y = [i[1][3] for i in training_data] # Just used for old model that only predicts one output per prediction
+    # 0 is first action, 3 is last action
+    #y is now a list of lists of 4 move elements, e.g [  [ [0, 1, 0, 0, 0, 0] ... [move4] ], [ [] ... [] ] ... ]
 
     if not model:
         model = neuralNetworkModel()

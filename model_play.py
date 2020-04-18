@@ -1,4 +1,6 @@
 import argparse
+from statistics import mean
+
 import gym
 import retro
 import random
@@ -35,12 +37,12 @@ def main():
     goal_steps = 10000
     current_play_time, last_play_time = None, None
     num_of_games = args.rounds
-    # TODO: Come up with some way of measuring model performance over x amount of games, maybe record scores / rewards over time?
 
     obs_type = retro.Observations.IMAGE if args.obs_type == 'image' else retro.Observations.RAM
     env = retro.make(args.game, args.state, scenario=args.scenario, record=args.record, players=args.players, obs_type=obs_type)
 
     observations = []
+    scores = []
 
     for game in range(num_of_games):
         observation = env.reset()
@@ -57,17 +59,19 @@ def main():
             if step % 4 == 0 and step != 0:
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
+                prediction = model.predict(shapedArray)
                 action = model.predict(shapedArray)[0].astype(int)
-                action_button = TrainLoop.actionNumToString(action)
+                action_button = TrainLoop.parseNetworkOutputToString(action)
                 chosen_actions.append(action_button)
 
                 observations.clear()
 
-                if args.verbose:
+                if args.verbose == 1:
                     debug_string = f"Ep {game} step {step}: {info} | {action_button} - {reward}"
                     print(debug_string)
-                else:
+                elif args.verbose == 2:
                     print(action_button)
+
             else:
                 action = np.zeros(12, "int8")
 
@@ -78,9 +82,13 @@ def main():
                 current_play_time = info.get("play_time")
 
             if step >= goal_steps or done or last_play_time == current_play_time:
+                scores.append(info.get("p1_score"))
+                print(f"Ep {game} | Player Score: {info.get('p1_score')}")
                 break
 
             observation = observation_
+
+    print(f"Average: {round(mean(scores), 3)}, Min: {min(scores)}, Max: {max(scores)}")
 
     env.close()
 
