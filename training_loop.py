@@ -36,16 +36,16 @@ def parseIntToActionArray(action):
 
     return ar
 
-def parseNetworkOutputToString(array):
+def parseActionArrayToString(array):
     if array[0] == 1: #B
         return "B"
     elif array[1] == 1: #A
         return "A"
-    elif array[2] == 1: #DOWN
+    elif array[5] == 1: #DOWN
         return "DOWN"
-    elif array[3] == 1: #LEFT
+    elif array[6] == 1: #LEFT
         return "LEFT"
-    elif array[4] == 1: #RIGHT
+    elif array[7] == 1: #RIGHT
         return "RIGHT"
     #elif array[5] == 1: #NONE
     #    return "NONE"

@@ -22,7 +22,7 @@ def main():
     parser.add_argument('--players', '-p', type=int, default=1, help='number of players/agents (default: 1)')
     parser.add_argument('--model', '-m', default='models/model', help='model name, without .model extension')
     parser.add_argument('--rounds', '-ro', type=int, default=3, help='number of rounds the model will play')
-    parser.add_argument('--verbose', '-v', type=bool, default=False, help='print verbose logging of actions, rewards and game steps')
+    parser.add_argument('--verbose', '-v', type=int, default=0, help='print verbose logging of actions, rewards and game steps')
     args = parser.parse_args()
 
     if args.state == "random":
@@ -60,8 +60,9 @@ def main():
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
                 prediction = model.predict(shapedArray)[0]
-                action = TrainLoop.parseIntToActionArray(np.argmax(prediction)) # Gets the largest index
-                action_button = TrainLoop.parseNetworkOutputToString(prediction.astype(int))
+                # Gets the largest number from the array, and passes the index into the function
+                action = TrainLoop.parseIntToActionArray(np.argmax(prediction))
+                action_button = TrainLoop.parseActionArrayToString(action)
                 chosen_actions.append(action_button)
 
                 observations.clear()
@@ -69,8 +70,12 @@ def main():
                 if args.verbose == 1:
                     debug_string = f"Ep {game} step {step}: {info} | {action_button} - {reward}"
                     print(debug_string)
+
                 elif args.verbose == 2:
                     print(action_button)
+
+                elif args.verbose == 3:
+                    print(prediction)
 
             else:
                 action = np.zeros(12, "int8")
