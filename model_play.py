@@ -1,4 +1,6 @@
 import argparse
+from statistics import mean
+
 import gym
 import retro
 import random
@@ -58,19 +60,18 @@ def main():
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
                 prediction = model.predict(shapedArray)
-                # print(prediction) - See what the prediction is
                 action = model.predict(shapedArray)[0].astype(int)
                 action_button = TrainLoop.parseNetworkOutputToString(action)
-                #print(action_button)
                 chosen_actions.append(action_button)
 
                 observations.clear()
 
-                if args.verbose:
+                if args.verbose == 1:
                     debug_string = f"Ep {game} step {step}: {info} | {action_button} - {reward}"
                     print(debug_string)
-                #else:
-                    #print(action_button)
+                elif args.verbose == 2:
+                    print(action_button)
+
             else:
                 action = np.zeros(12, "int8")
 
@@ -82,12 +83,12 @@ def main():
 
             if step >= goal_steps or done or last_play_time == current_play_time:
                 scores.append(info.get("p1_score"))
-                print(f"EP{game}: Player Score: {info.get('p1_score')}")
+                print(f"Ep {game} | Player Score: {info.get('p1_score')}")
                 break
 
             observation = observation_
 
-    print(scores)
+    print(f"Average: {round(mean(scores), 3)}, Min: {min(scores)}, Max: {max(scores)}")
 
     env.close()
 

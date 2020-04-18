@@ -198,7 +198,7 @@ def main():
             training_data.append([data[0], arrayOfActions])
 
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
-    print(model_settings_string)
+    print(f"Model setting: {model_settings_string}")
     exp_rep.saveFile("testing")
 
     model = NetModel.trainDQN(training_data)
