@@ -70,7 +70,7 @@ def actionNumToString(action):
     elif action == 4:
         return "RIGHT"
     else:
-        return " "
+        return "NONE"
 
 
 def saveModel(model, model_name, model_path="models"):
@@ -119,6 +119,7 @@ def main():
     training_episodes = 100
     training_data = []
     game_memory = []
+    action_record = []
 
     # Training Episodes | Goal Steps | Frames Per Action | Observation Record Rate | Reward Threshold | Observation Memory Size | Action Memory Size
     model_settings_string = f"TE: {training_episodes} | GS: {goal_steps} | FPA: {frames_per_action} | ORR: {obs_record_rate} | RT: {reward_threshold} | OMS: {obs_mem_size} | AMS: {action_mem_size}"
@@ -168,6 +169,7 @@ def main():
             if reward >= reward_threshold:
                 compressed_array = np.asarray(obs_memory)
                 game_memory.append([compressed_array[:], action_memory[:]])
+                action_record.append(action_memory[:][-1])
                 action_memory.clear()
                 obs_memory.clear()
                 exp_rep.appendObservation(compressed_array[:], action_memory[:])
@@ -199,6 +201,7 @@ def main():
 
     print(f"Captured Observations: {len(training_data)} | Episodes: {training_episodes}, Total Steps: {total_steps}")
     print(f"Model setting: {model_settings_string}")
+    print(f"B: {action_record.count(0)} \nA: {action_record.count(1)} \nDOWN: {action_record.count(2)} \nLEFT: {action_record.count(3)} \nRIGHT: {action_record.count(4)}")
     exp_rep.saveFile("testing")
 
     model = NetModel.trainDQN(training_data)
@@ -208,14 +211,14 @@ def main():
 
     if (model_name.lower() != "n"):
         saveModel(model, model_name)
+        file_path = f"models/{model_name}/settings.txt"
+        text_file = open(file_path, "w")
+        text_writer = text_file.write(model_settings_string)
+        print(f"Wrote settings file to {file_path}")
+        text_file.close()
+
     else:
         print("Model not saved, exiting program...")
-
-    file_path = f"models/{model_name}/settings.txt"
-    text_file = open(file_path, "w")
-    text_writer = text_file.write(model_settings_string)
-    print(f"Wrote settings file to {file_path}")
-    text_file.close()
 
     env.close()
 

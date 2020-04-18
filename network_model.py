@@ -8,7 +8,8 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
 # Model constants
-keep_rate = 0.8
+rate = 0.2
+drop_rate = 0.8
 network_output_size = 5 # 6 potential outputs - B, A, LEFT, DOWN, RIGHT, NONE
 learning_rate = 1e-3
 
@@ -23,13 +24,13 @@ def neuralNetworkModel():
     network = max_pool_3d(network, 2)
 
     network = fully_connected(network, 512, activation="relu") # Check that this network input size is correct
-    network = dropout(network, keep_rate)
+    network = dropout(network, drop_rate) # Might need to switch out rate?
 
     network = fully_connected(network, 2048, activation="relu")
-    network = dropout(network, keep_rate)
+    network = dropout(network, drop_rate)
 
     network = fully_connected(network, 256, activation="relu")
-    network = dropout(network, keep_rate)
+    network = dropout(network, drop_rate)
 
     network = fully_connected(network, network_output_size, activation="softmax")
     network = regression(network, optimizer="adam", learning_rate=learning_rate, loss="categorical_crossentropy", name="targets")
