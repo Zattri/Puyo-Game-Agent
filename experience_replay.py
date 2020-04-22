@@ -32,6 +32,4 @@ class ExperienceReplay():
     def readFile(self, file_name):
         file_path = f'experiences/{file_name}.json'
         with open(file_path) as json_file:
-            data = np.asarray(json.load(json_file))
-            print(data[0][0])
-            print(data[0][1])
+            return np.asarray(json.load(json_file))

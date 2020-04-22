@@ -145,11 +145,13 @@ class Interactive(abc.ABC):
                     print("GO!")
 
                 if self._steps % 6 == 0:
-                    # Appending latest action to memory, stops key roll over so only appends every 0.1 secs
-                    if act != [False] * 12:
+                    # Appending latest action to memory, stops key / input roll over so only appends every 0.2 secs
+                    action_array = list(map(convertBoolToInt, act[:]))
+                    action_int = training_loop.parseActionArrayToInt(action_array)
+                    if action_int != 5 and action_int != 2: # If not NONE or DOWN
                         if len(self.action_memory) >= self.recording_memory_size:
                             self.action_memory.pop(0)
-                        self.action_memory.append(act)
+                        self.action_memory.append(action_int)
 
                 if self._steps % 4 == 0:
                     obs_img = self._image[4: 206, 18: 110]
@@ -159,8 +161,12 @@ class Interactive(abc.ABC):
                     self.obs_memory.append(exp_rep.compressObservation(obs_img))
 
                 if rew >= self.reward_threshold:
-                    compressed_array = list(map(exp_rep.compressObservation, self.obs_memory))
-                    exp_rep.appendObservation(compressed_array, self.action_memory)
+                    # Fill up blank memory with NONE
+                    while len(self.action_memory) < self.recording_memory_size:
+                        self.action_memory.append(5)
+
+                    compressed_array = list(map(exp_rep.compressObservation, self.obs_memory[:]))
+                    exp_rep.appendObservation(compressed_array, self.action_memory[:])
                     self.obs_memory.clear()
 
                 if self._steps % 60 == 0:
@@ -288,6 +294,12 @@ class RetroInteractive(Interactive):
         }
         return [inputs[b] for b in self._buttons]
 
+def convertBoolToInt(boolValue):
+    if boolValue:
+        return 1
+    else:
+        return 0
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--game', default='Puyo-Genesis')
@@ -298,7 +310,6 @@ def main():
     args = parser.parse_args()
 
     if args.state == "random":
-        print("Triggered")
         args.state = training_loop.getRandomState(int(args.difficulty))
 
     ia = RetroInteractive(game=args.game, state=args.state, scenario=args.scenario, verbose=args.verbose)

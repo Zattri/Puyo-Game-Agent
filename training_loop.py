@@ -27,21 +27,35 @@ def getRandomState(difficulty=0):
     return f"p1_s{stage}_0{modifier}"
 
 
-def parseIntToActionArray(action):
+def parseIntToActionArray(action_int):
     ar = np.zeros(12, "int8")
 
-    if action == 0: #B
+    if action_int == 0: #B
         ar[0] = 1
-    elif action == 1: #A
+    elif action_int == 1: #A
         ar[1] = 1
-    elif action == 2: #DOWN
+    elif action_int == 2: #DOWN
         ar[5] = 1
-    elif action == 3: #LEFT
+    elif action_int == 3: #LEFT
         ar[6] = 1
-    elif action == 4: #RIGHT
+    elif action_int == 4: #RIGHT
         ar[7] = 1
 
     return ar
+
+def parseIntToString(action_int):
+    if action_int == 0:
+        return "B"
+    elif action_int == 1:
+        return "A"
+    elif action_int == 2:
+        return "DOWN"
+    elif action_int == 3:
+        return "LEFT"
+    elif action_int == 4:
+        return "RIGHT"
+    elif action_int == 5:
+        return "NONE"
 
 def parseActionArrayToString(array):
     if array[0] == 1: #B
@@ -56,6 +70,21 @@ def parseActionArrayToString(array):
         return "RIGHT"
     else: #NONE
         return "NONE"
+
+
+def parseActionArrayToInt(array):
+    if array[0] == 1: #B
+        return 0
+    elif array[1] == 1: #A
+        return 1
+    elif array[5] == 1: #DOWN
+        return 2
+    elif array[6] == 1: #LEFT
+        return 3
+    elif array[7] == 1: #RIGHT
+        return 4
+    else: #NONE
+        return 5
 
 
 def parseIntToNetworkOutput(action):
@@ -123,7 +152,7 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 1
+    training_episodes = 100
     training_data = []
     game_memory = []
 
@@ -151,7 +180,8 @@ def main():
                 if len(action_memory) == action_mem_size:
                     action_memory.pop(0)
 
-                action_memory.append(chosen_action)
+                if chosen_action != 2:
+                    action_memory.append(chosen_action)
 
             else:
                 # Do nothing
@@ -173,11 +203,15 @@ def main():
                 obs_memory.append(compressed)
 
             if reward >= reward_threshold:
+                # Fill up the memory with nothing actions if not long enough
+                while len(action_memory) < action_mem_size:
+                    action_memory.append(5)
+
                 compressed_array = np.asarray(obs_memory)
                 game_memory.append([compressed_array[:], action_memory[:]])
+                exp_rep.appendObservation(compressed_array[:], action_memory[:])
                 action_memory.clear()
                 obs_memory.clear()
-                exp_rep.appendObservation(compressed_array[:], action_memory[:])
 
             if step % 60 == 0:
                 last_play_time = current_play_time
