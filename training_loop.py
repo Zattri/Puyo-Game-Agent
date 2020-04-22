@@ -152,7 +152,7 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 100
+    training_episodes = 1000
     training_data = []
     game_memory = []
 
@@ -180,7 +180,7 @@ def main():
                 if len(action_memory) == action_mem_size:
                     action_memory.pop(0)
 
-                if chosen_action != 2:
+                if chosen_action != 2 and chosen_action != 5:
                     action_memory.append(chosen_action)
 
             else:

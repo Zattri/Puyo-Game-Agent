@@ -56,10 +56,10 @@ def main():
             if len(observations) < 4:
                 observations.append(compressed)
 
-            if step % 4 == 0 and step != 0:
+            if step % 16 == 0 and step != 0:
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
-                prediction = model.predict(shapedArray)[0]
+                prediction = model.predict(shapedArray)[0][:-1] #[:-1] - removes the NONE action from the prediction array (temporary)
                 # Gets the largest number from the array, and passes the index into the function
                 action = TrainLoop.parseIntToActionArray(np.argmax(prediction))
                 action_button = TrainLoop.parseActionArrayToString(action)
