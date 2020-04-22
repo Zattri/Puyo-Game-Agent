@@ -12,12 +12,19 @@ import network_model as NetModel
 
 
 def getRandomState(difficulty=0):
+    modifier = "01"
+
     if difficulty == 0:
         stage = random.randint(1,3)
+
+    elif difficulty == 1:
+        stage = 1
+        modifier = random.randint(1, 5)
+
     else:
         stage = difficulty
 
-    return f"p1_s{stage}_01"
+    return f"p1_s{stage}_0{modifier}"
 
 
 def parseIntToActionArray(action):

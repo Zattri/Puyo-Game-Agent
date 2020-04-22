@@ -1,7 +1,6 @@
 import json
 import numpy as np
 import skimage.measure
-import matplotlib.pyplot as plt
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -30,6 +29,9 @@ class ExperienceReplay():
     def compressObservation(self, obs):
         return skimage.measure.block_reduce(obs, (2, 2, 1), np.max)
 
-    #def readObservationsFromFile(self, file_path):
-        #json_load = json.loads(json_dump)
-        #a_restored = np.asarray(json_load["a"])
+    def readFile(self, file_name):
+        file_path = f'experiences/{file_name}.json'
+        with open(file_path) as json_file:
+            data = np.asarray(json.load(json_file))
+            print(data[0][0])
+            print(data[0][1])

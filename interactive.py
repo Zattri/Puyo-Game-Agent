@@ -150,7 +150,6 @@ class Interactive(abc.ABC):
                         if len(self.action_memory) >= self.recording_memory_size:
                             self.action_memory.pop(0)
                         self.action_memory.append(act)
-                        print(self.action_memory)
 
                 if self._steps % 4 == 0:
                     obs_img = self._image[4: 206, 18: 110]
@@ -173,15 +172,14 @@ class Interactive(abc.ABC):
                     mess = 'action={act}\nsteps={self._steps} returns_delta={episode_returns_delta} ep_returns={self._episode_returns} info={_info}'.format(
                         **locals()
                     )
-                    print(mess)
                 elif self._steps % self._tps == 0 or done:
                     episode_returns_delta = self._episode_returns - self._prev_episode_returns
                     self._prev_episode_returns = self._episode_returns
                     mess = 'action={act}\nsteps={self._steps} returns_delta={episode_returns_delta} ep_returns={self._episode_returns} info={_info}'.format(
                         **locals()
                     )
-                    if self.args_verbose == 1:
-                        print(mess)
+                if self.args_verbose == 1:
+                    print(mess)
 
                 if done or (self.last_play_time != None and self.current_play_time == self.last_play_time):
                     self._env.reset()
@@ -300,7 +298,8 @@ def main():
     args = parser.parse_args()
 
     if args.state == "random":
-        args.state = training_loop.getRandomState(args.difficulty)
+        print("Triggered")
+        args.state = training_loop.getRandomState(int(args.difficulty))
 
     ia = RetroInteractive(game=args.game, state=args.state, scenario=args.scenario, verbose=args.verbose)
     ia.run()
