@@ -87,6 +87,8 @@ class Interactive(abc.ABC):
         self.action_memory = []
         self.reward_threshold = 20
         self.recording_memory_size = 4
+        self.obs_record_rate = 4
+        self.action_record_rate = 6
 
     def _update(self, dt):
         exp_rep = ExpRep.ExperienceReplay()
@@ -144,7 +146,7 @@ class Interactive(abc.ABC):
                     time.sleep(1)
                     print("GO!")
 
-                if self._steps % 6 == 0:
+                if self._steps % self.action_record_rate == 0:
                     # Appending latest action to memory, stops key / input roll over so only appends every 0.2 secs
                     action_array = list(map(convertBoolToInt, act[:]))
                     action_int = training_loop.parseActionArrayToInt(action_array)
@@ -153,7 +155,7 @@ class Interactive(abc.ABC):
                             self.action_memory.pop(0)
                         self.action_memory.append(action_int)
 
-                if self._steps % 4 == 0:
+                if self._steps % self.obs_record_rate == 0:
                     obs_img = self._image[4: 206, 18: 110]
                     # Appending latest observations to memory
                     if len(self.obs_memory) >= self.recording_memory_size:
