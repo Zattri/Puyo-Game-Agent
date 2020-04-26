@@ -39,7 +39,7 @@ def neuralNetworkModel():
 
 def trainDQN(training_data, model=False):
     x = np.asarray([i[0] for i in training_data])
-    #y = [i[1] for i in training_data]
+    # y = [i[1] for i in training_data]
     y = [i[1][3] for i in training_data] # Just used for old model that only predicts one output per prediction
     # 0 is first action, 3 is last action
     #y is now a list of lists of 4 move elements, e.g [  [ [0, 1, 0, 0, 0, 0] ... [move4] ], [ [] ... [] ] ... ]
