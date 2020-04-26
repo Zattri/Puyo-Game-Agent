@@ -12,7 +12,7 @@ import network_model as NetModel
 
 
 def getRandomState(difficulty=0):
-    modifier = "01"
+    modifier = "1"
 
     if difficulty == 0:
         stage = random.randint(1,3)
