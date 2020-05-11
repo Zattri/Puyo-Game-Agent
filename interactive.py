@@ -160,14 +160,14 @@ class Interactive(abc.ABC):
                     # Appending latest observations to memory
                     if len(self.obs_memory) >= self.recording_memory_size:
                         self.obs_memory.pop(0)
-                    self.obs_memory.append(exp_rep.compressObservation(obs_img))
+                    self.obs_memory.append(ExpRep.compressObservation(obs_img))
 
                 if rew >= self.reward_threshold:
                     # Fill up blank memory with NONE
                     while len(self.action_memory) < self.recording_memory_size:
                         self.action_memory.append(5)
 
-                    compressed_array = list(map(exp_rep.compressObservation, self.obs_memory[:]))
+                    compressed_array = list(map(ExpRep.compressObservation, self.obs_memory[:]))
                     exp_rep.appendObservation(compressed_array, self.action_memory[:])
                     self.obs_memory.clear()
 

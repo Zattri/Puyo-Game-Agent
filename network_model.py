@@ -31,7 +31,7 @@ def neuralNetworkModel():
     network = fully_connected(network, 256, activation="relu")
     network = dropout(network, keep_rate)
 
-    network = fully_connected(network, network_output_size, activation="softmax")
+    network = fully_connected(network, network_output_size, activation="relu")
     network = regression(network, optimizer="adam", learning_rate=learning_rate, loss="categorical_crossentropy", name="targets")
 
     model = tflearn.DNN(network, tensorboard_dir="log")
