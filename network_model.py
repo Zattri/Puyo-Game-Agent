@@ -47,7 +47,7 @@ def trainDQN(training_data, model=False):
     if not model:
         model = neuralNetworkModel()
 
-    model.fit({"input": x}, {"targets": y}, n_epoch=5, snapshot_step=500, show_metric=True, run_id="PuyoOpenAI")
+    model.fit({"input": x}, {"targets": y}, n_epoch=3, snapshot_step=500, show_metric=True, run_id="PuyoOpenAI")
 
     return model
 

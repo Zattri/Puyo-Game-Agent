@@ -6,6 +6,7 @@ import json
 import training_loop as TrainLoop
 import experience_replay as ExpRep
 import network_model as NetModel
+import normaliser as Normaliser
 
 
 def main():
@@ -21,8 +22,9 @@ def main():
     for fileName in replay_files:
 
         file_data = ExpRep.readFile(fileName)
+        normalised_data = Normaliser.normaliseActionsFromFile(file_data)
 
-        for data in file_data:
+        for data in normalised_data:
 
             arrayOfActions = []
             for actionNumber in data[1]:
