@@ -1,6 +1,5 @@
 from random import shuffle
 
-
 def normaliseActionsFromFile(data):
 
     a_inputs = []
