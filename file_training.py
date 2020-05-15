@@ -16,20 +16,21 @@ def main():
     args = parser.parse_args()
 
     model_name = args.model
+    replay_files = ["test", "test2", "testing", "test3"]
+
     training_data = []
-    replay_files = ["1000ep_random"]
+    replay_data = []
 
     for fileName in replay_files:
+        replay_data = replay_data + ExpRep.readFile(fileName)
 
-        file_data = ExpRep.readFile(fileName)
-        normalised_data = Normaliser.normaliseActionsFromFile(file_data)
+    normalised_data = Normaliser.normaliseActionsFromFile(replay_data)
 
-        for data in normalised_data:
-
-            arrayOfActions = []
-            for actionNumber in data[1]:
-                arrayOfActions.append(TrainLoop.parseIntToNetworkOutput(actionNumber))
-            training_data.append([data[0], arrayOfActions])
+    for data in normalised_data:
+        arrayOfActions = []
+        for actionNumber in data[1]:
+            arrayOfActions.append(TrainLoop.parseIntToNetworkOutput(actionNumber))
+        training_data.append([data[0], arrayOfActions])
 
     model = NetModel.trainDQN(training_data)
 
