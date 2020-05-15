@@ -6,7 +6,6 @@ import retro
 import random
 import time
 import numpy as np
-import matplotlib.pyplot as plt
 
 import experience_replay as ExpRep
 import network_model as NetModel
