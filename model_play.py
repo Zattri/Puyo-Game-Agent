@@ -6,6 +6,7 @@ import retro
 import random
 import time
 import numpy as np
+import matplotlib.pyplot as plt
 
 import experience_replay as ExpRep
 import network_model as NetModel
@@ -31,8 +32,6 @@ def main():
     model = NetModel.neuralNetworkModel()
     model.load("models/" + args.model + "/" + args.model + '.model')
 
-    exp_rep = ExpRep.ExperienceReplay()
-
     chosen_actions = []
     goal_steps = 10000
     current_play_time, last_play_time = None, None
@@ -53,14 +52,14 @@ def main():
             time.sleep(0.005)
 
             obs_img = observation[4: 206, 18: 110]
-            compressed = exp_rep.compressObservation(obs_img)
+            compressed = ExpRep.compressObservation(obs_img)
             if len(observations) < 4:
                 observations.append(compressed)
 
             if step % action_rate == 0 and step != 0:
                 observedFrames = np.asarray(observations)
                 shapedArray = np.expand_dims(observedFrames, axis=0)
-                prediction = model.predict(shapedArray)[0][:-1] #[:-1] - removes the NONE action from the prediction array (temporary)
+                prediction = model.predict(shapedArray)[0] #[:-1] - removes the NONE action from the prediction array (temporary)
                 # Gets the largest number from the array, and passes the index into the function
                 action = TrainLoop.parseIntToActionArray(np.argmax(prediction))
                 action_button = TrainLoop.parseActionArrayToString(action)

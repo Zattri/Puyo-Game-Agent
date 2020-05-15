@@ -149,7 +149,7 @@ def main():
     # Training Settings / Variables
     total_steps = 0
     goal_steps = 20000
-    training_episodes = 1000
+    training_episodes = 5
     training_data = []
     game_memory = []
 
@@ -192,7 +192,7 @@ def main():
                 # Button Mappings - ['B', 'A', 'MODE', 'START', 'UP', 'DOWN', 'LEFT', 'RIGHT', 'C', 'Y', 'X', 'Z']
                 # P1 Well - [4: 206, 18: 110] | P2 Well - [4: 206, 210: 302]
                 obs_img = observation[4: 206, 18: 110]
-                compressed = exp_rep.compressObservation(obs_img)
+                compressed = ExpRep.compressObservation(obs_img)
 
                 if len(obs_memory) == obs_mem_size:
                     obs_memory.pop(0)

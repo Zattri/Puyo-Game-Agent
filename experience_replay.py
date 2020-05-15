@@ -15,6 +15,9 @@ class ExperienceReplay():
         obs_tuple = (image_array, action_array)
         self.observations.append(obs_tuple)
 
+    def getObservation(self, x_index, y_index): # Won't work anymore - rejig
+        return np.asarray(self.observations[x_index][y_index])
+
     def saveFile(self, file_name="data", folder="experiences"):
         file_path = folder + "/" + file_name + ".json"
         print(f"Saving observations to {file_path}...")
@@ -23,13 +26,11 @@ class ExperienceReplay():
             fjson.close()
         print("Finished Saving!")
 
-    def getObservation(self, x_index, y_index): # Won't work anymore - rejig
-        return np.asarray(self.observations[x_index][y_index])
 
-    def compressObservation(self, obs):
-        return skimage.measure.block_reduce(obs, (2, 2, 1), np.max)
+def compressObservation(obs):
+    return skimage.measure.block_reduce(obs, (2, 2, 1), np.max)
 
-    def readFile(self, file_name):
-        file_path = f'experiences/{file_name}.json'
-        with open(file_path) as json_file:
-            return np.asarray(json.load(json_file))
+def readFile(file_name):
+    file_path = f'experiences/{file_name}.json'
+    with open(file_path) as json_file:
+        return json.load(json_file)
