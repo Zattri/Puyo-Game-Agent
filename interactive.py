@@ -138,6 +138,7 @@ class Interactive(abc.ABC):
                 np.set_printoptions(precision=2)
 
                 if self._steps == 6:
+                    self.initial_score = _info.get('p1_score')
                     print("3...")
                     time.sleep(1)
                     print("2..")
@@ -190,7 +191,9 @@ class Interactive(abc.ABC):
                     print(mess)
 
                 if done or (self.last_play_time != None and self.current_play_time == self.last_play_time):
-                    print(f"SCORE: {_info.get('p2_score')} | TIME: {self.current_play_time}")
+                    winner_score = _info.get('p2_score') - self.initial_score
+                    loser_score = _info.get('p1_score') - self.initial_score
+                    print(f"WINNER SCORE: {winner_score}| LOSER SCORE: {loser_score} | TIME: {self.current_play_time}")
                     self._env.reset()
                     self._episode_steps = 0
                     self._episode_returns = 0
