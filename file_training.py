@@ -16,7 +16,7 @@ def main():
     args = parser.parse_args()
 
     model_name = args.model
-    replay_files = ["test", "test2", "testing", "test3", "test4"]
+    replay_files = ["test", "test2", "test3", "test4"]
 
     training_data = []
     replay_data = []
