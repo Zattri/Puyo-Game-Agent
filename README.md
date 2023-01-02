@@ -11,7 +11,7 @@ Raw game footage             |  Processed Image
 </div>
 
 ## Training Platform
-There is also an additional repo coupled with this project that creates a training platform for gathering data from players to train the game agent model, found here - https://github.com/Zattri/puyo-gym-training
+There is also an additional repo coupled with this project that creates a training platform for gathering data from players to train the game agent model, found here - https://github.com/Zattri/Puyo-Game-Agent-Training
 
 ## Project Dependencies:
 
