@@ -1,10 +1,21 @@
-# puyo-gym
-Puyo Puyo Tsu - Dynamic Game Agent with Difficulty Adjustment Functionality using OpenAI Gym Retro
+# An AI Game Agent with Difficulty Adjustment, developed for my BSc Final Year Project
+An AI agent was developed for the video game Puyo Puyo Tsu (a competitive Tetris block breaking game) using the OpenAI Gym playtform for retro game emulation and AI programming. The goal of the agent was to use only visual information to make its decisions, and have a difficulty scaling element allowing it to be tailored to a player's skill level. It utilised a convolutional neural network and simple prediction based system for generating game inputs, which were then staggered or delayed artificially to adjust the speed of the AI for different difficulty settings.
+
+Images were captured from the game environment and pre-processed to extract key information as shown below:
+<div style="text-align: center">
+
+Raw game footage             |  Processed Image
+:---------------------------:|:-------------------------:
+![image](https://user-images.githubusercontent.com/9122074/210259501-ef8beed1-3a24-477b-9b9e-e99ff909a5b4.png) | ![image](https://user-images.githubusercontent.com/9122074/210259557-0b5f0fc3-510f-476d-8851-5c2239cbc7dd.png)
+
+</div>
+
 
 ## Project Dependencies:
 
-### Python3 (V3.7+):
-Install: Google it
+Linux operating system only (sorry Windows guys)
+### Python3 (V3.7+)
+See - https://www.python.org/downloads/release/python-370/
 
 ### cmake:
 Used for gym-retro integration UI
