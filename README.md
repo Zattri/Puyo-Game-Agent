@@ -1,5 +1,5 @@
-# An AI Game Agent with Difficulty Adjustment, developed for my BSc Final Year Project
-An AI agent was developed for the video game Puyo Puyo Tsu (a competitive Tetris block breaking game) using the OpenAI Gym playtform for retro game emulation and AI programming. The goal of the agent was to use only visual information to make its decisions, and have a difficulty scaling element allowing it to be tailored to a player's skill level. It utilised a convolutional neural network and simple prediction based system for generating game inputs, which were then staggered or delayed artificially to adjust the speed of the AI for different difficulty settings.
+# AI Game Agent with Difficulty Adjustment
+An AI agent was developed for the video game Puyo Puyo Tsu (a competitive Tetris block breaking game) using the OpenAI Gym playtform for retro game emulation and AI programming. This project was made for my final year project of my BSc with the goal of developing an agent to use only visual information to make its decisions, and have a difficulty scaling element allowing it to be tailored to a player's skill level. It utilised a convolutional neural network and simple prediction based system for generating game inputs, which were then staggered or delayed artificially to adjust the speed of the AI for different difficulty settings.
 
 Images were captured from the game environment and pre-processed to extract key information as shown below:
 <div style="text-align: center">
